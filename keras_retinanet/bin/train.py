@@ -205,6 +205,8 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
         min_lr     = 0
     ))
 
+    callbacks.append(wandb.keras.WandbCallback())
+
     return callbacks
 
 
@@ -487,8 +489,7 @@ def main(args=None):
         training_model,
         prediction_model,
         validation_generator,
-        args,
-        wandb.keras.WandbCallback()
+        args
     )
 
     # Use multiprocessing if workers > 0
