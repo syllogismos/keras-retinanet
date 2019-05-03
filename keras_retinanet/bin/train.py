@@ -24,6 +24,7 @@ import warnings
 import keras
 import keras.preprocessing.image
 import tensorflow as tf
+import wandb
 
 # Allow relative imports when being executed as script.
 if __name__ == "__main__" and __package__ is None:
@@ -415,8 +416,9 @@ def parse_args(args):
     # Fit generator arguments
     parser.add_argument('--workers', help='Number of multiprocessing workers. To disable multiprocessing, set workers to 0', type=int, default=1)
     parser.add_argument('--max-queue-size', help='Queue length for multiprocessing workers in fit generator.', type=int, default=10)
-
-    return check_args(parser.parse_args(args))
+    config=parser.parse_args(args)
+    wandb.config.update(config)
+    return check_args(config)
 
 
 def main(args=None):
@@ -424,6 +426,7 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
     args = parse_args(args)
+    wandb.config.update(args)
 
     # create object that stores backbone information
     backbone = models.backbone(args.backbone)
@@ -511,4 +514,5 @@ def main(args=None):
 
 
 if __name__ == '__main__':
+    wandb.init()
     main()
