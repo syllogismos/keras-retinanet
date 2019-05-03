@@ -488,6 +488,7 @@ def main(args=None):
         prediction_model,
         validation_generator,
         args,
+        wandb.keras.WandbCallback()
     )
 
     # Use multiprocessing if workers > 0
