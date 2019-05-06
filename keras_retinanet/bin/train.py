@@ -185,7 +185,7 @@ class log_image_callback(Callback):
             caption = "{} {:.3f}".format(labels_to_names[label], score)
             draw_caption(draw, b, caption)
 
-        wandb.log({"examples": [wandb.Image(draw, caption="x")]}, commit=False)
+        wandb.log({"examples": [wandb.Image(draw, caption=image_name)]}, commit=False)
 
 
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
