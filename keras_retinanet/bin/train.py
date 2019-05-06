@@ -154,7 +154,7 @@ class log_image_callback(Callback):
                 '000000000049.jpg']
         inference_model = models.convert_model(self.model)
         for image in images:
-            this.log_image(image, inference_model)
+            self.log_image(image, inference_model)
         
 
     def log_image(self, image_name, inference_model):
