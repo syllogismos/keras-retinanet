@@ -155,10 +155,26 @@ class log_image_callback(Callback):
         image, scale = resize_image(image)
 
         # process image
-        # start = time.time()
-        # boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
-        # print("processing time: ", time.time() - start)
-        wandb.log({"examples": [wandb.Image(image, caption="x")]}, commit=False)
+        start = time.time()
+        boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
+        print("processing time: ", time.time() - start)
+
+        for box, score, label in zip(boxes[0], scores[0], labels[0]):
+            # scores are sorted so we can break
+            if score < 0.5:
+                break
+                
+            color = label_color(label)
+            
+            b = box.astype(int)
+            draw_box(draw, b, color=color)
+            
+            caption = "{} {:.3f}".format(labels_to_names[label], score)
+            draw_caption(draw, b, caption)
+            
+        wandb.log({"examples": [wandb.Image(draw, caption="x")]}, commit=False)
+
+
 
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
     """ Creates the callbacks to use during training.
@@ -230,8 +246,8 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
         min_lr     = 0
     ))
 
-    callbacks.append(wandb.keras.WandbCallback())
     callbacks.append(log_image_callback())
+    callbacks.append(wandb.keras.WandbCallback())
 
     return callbacks
 
