@@ -156,7 +156,7 @@ class log_image_callback(Callback):
 
         # process image
         start = time.time()
-        boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
+        boxes, scores, labels = self.model.predict(np.expand_dims(image, axis=0))
         print("processing time: ", time.time() - start)
 
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
@@ -171,7 +171,7 @@ class log_image_callback(Callback):
             
             caption = "{} {:.3f}".format(labels_to_names[label], score)
             draw_caption(draw, b, caption)
-            
+
         wandb.log({"examples": [wandb.Image(draw, caption="x")]}, commit=False)
 
 
