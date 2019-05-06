@@ -144,8 +144,8 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
 
 
 class log_image_callback(Callback):
-    image_path = './data/images/train2017/000000000009.jpg'
     def on_epoch_end(self, epoch, logs={}):
+        image_path = './data/images/train2017/000000000009.jpg'
         image = read_image_bgr(image_path)
         draw = image.copy()
         raw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
