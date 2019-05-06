@@ -23,8 +23,12 @@ import warnings
 
 import keras
 import keras.preprocessing.image
+from keras.callbacks import Callback
 import tensorflow as tf
 import wandb
+import cv2, time
+import numpy as np
+
 
 # Allow relative imports when being executed as script.
 if __name__ == "__main__" and __package__ is None:
@@ -48,7 +52,11 @@ from ..utils.config import read_config_file, parse_anchor_parameters
 from ..utils.keras_version import check_keras_version
 from ..utils.model import freeze as freeze_model
 from ..utils.transform import random_transform_generator
+from ..utils.image import read_image_bgr, preprocess_image, resize_image
+from ..utils.visualization import draw_box, draw_caption
+from ..utils.colors import label_color
 
+labels_to_names = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train', 7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 12: 'parking meter', 13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant', 21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag', 27: 'tie', 28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite', 34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard', 38: 'tennis racket', 39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl', 46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog', 53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed', 60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard', 67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 72: 'refrigerator', 73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier', 79: 'toothbrush'}
 
 def makedirs(path):
     # Intended behavior: try to create the directory,
@@ -135,6 +143,23 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
     return model, training_model, prediction_model
 
 
+class log_image_callback(Callback):
+    image_path = './data/images/train2017/000000000009.jpg'
+    def on_epoch_end(self, epoch, logs={}):
+        image = read_image_bgr(image_path)
+        draw = image.copy()
+        raw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
+
+        # preprocess image for network
+        image = preprocess_image(image)
+        image, scale = resize_image(image)
+
+        # process image
+        # start = time.time()
+        # boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
+        # print("processing time: ", time.time() - start)
+        wandb.log({"examples": [wandb.Image(image, caption="x")]}, commit=False)
+
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
     """ Creates the callbacks to use during training.
 
@@ -206,6 +231,7 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
     ))
 
     callbacks.append(wandb.keras.WandbCallback())
+    callbacks.append(log_image_callback())
 
     return callbacks
 
