@@ -143,9 +143,22 @@ def create_models(backbone_retinanet, num_classes, weights, multi_gpu=0,
     return model, training_model, prediction_model
 
 
+
 class log_image_callback(Callback):
     def on_epoch_end(self, epoch, logs={}):
-        image_path = './data/images/train2017/000000000009.jpg'
+        images = ['000000000025.jpg',
+                '000000000030.jpg',
+                '000000000034.jpg',
+                '000000000036.jpg',
+                '000000000042.jpg',
+                '000000000049.jpg']
+        inference_model = models.convert_model(self.model)
+        for image in images:
+            this.log_image(image, inference_model)
+        
+
+    def log_image(self, image_name, inference_model):
+        image_path = './data/images/train2017/' + image_name #000000000009.jpg'
         image = read_image_bgr(image_path)
         draw = image.copy()
         raw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
@@ -156,7 +169,6 @@ class log_image_callback(Callback):
 
         # process image
         start = time.time()
-        inference_model = models.convert_model(self.model)
         boxes, scores, labels = inference_model.predict_on_batch(np.expand_dims(image, axis=0))
         print("processing time: ", time.time() - start)
 
@@ -174,7 +186,6 @@ class log_image_callback(Callback):
             draw_caption(draw, b, caption)
 
         wandb.log({"examples": [wandb.Image(draw, caption="x")]}, commit=False)
-
 
 
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
