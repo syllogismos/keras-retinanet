@@ -153,38 +153,12 @@ class log_image_callback(Callback):
                 '000000000042.jpg',
                 '000000000049.jpg']
         inference_model = models.convert_model(self.model)
-        # x_image = np.vstack(list(map(self.image_to_x, images)))
-        # boxes, scores, labels = inference_model.predict_on_batch(x_image)
 
-        # for i, image in enumerate(images):
-        #     draw = read_image_bgr('./data/images/train2017' + image)
-        #     draw = cv2.cvtColor(draw, cv2.COLOR_BGR2RGB)
-
-        #     for box, score, label in zip(boxes[i], scores[i], labels[i]):
-        #         # scores are sorted so we can break
-        #         if score < 0.5:
-        #             break
-                    
-        #         color = label_color(label)
-                
-        #         b = box.astype(int)
-        #         draw_box(draw, b, color=color)
-                
-        #         caption = "{} {:.3f}".format(labels_to_names[label], score)
-        #         draw_caption(draw, b, caption)
-
-        #     wandb.log({image_name: [wandb.Image(draw, caption="annotations")]}, commit=False)
+        # images are of differrent dimensions, so couldn't get batch
+        # inference to work
         for image in images:
             self.log_image(image, inference_model)
         
-
-    def image_to_x(self, image_name):
-        image_path = './data/images/train2017/' + image_name #000000000009.jpg'
-        image = read_image_bgr(image_path)
-        # preprocess image for network
-        image = preprocess_image(image)
-        image, scale = resize_image(image)
-        return np.expand_dims(image, axis=0)
 
 
     def log_image(self, image_name, inference_model):
