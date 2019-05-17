@@ -486,7 +486,6 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
     args = parse_args(args)
-    wandb.config.update(args)
 
     # create object that stores backbone information
     backbone = models.backbone(args.backbone)
