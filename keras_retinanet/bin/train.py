@@ -266,7 +266,7 @@ def create_callbacks(model, training_model, prediction_model, validation_generat
     ))
 
     callbacks.append(log_image_callback())
-    callbacks.append(wandb.keras.WandbCallback())
+    callbacks.append(wandb.keras.WandbCallback(log_weights=True))
 
     return callbacks
 
