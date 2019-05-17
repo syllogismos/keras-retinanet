@@ -19,6 +19,7 @@ from pycocotools.cocoeval import COCOeval
 import keras
 import numpy as np
 import json
+import random
 
 import progressbar
 assert(callable(progressbar.progressbar)), "Using wrong progressbar module, install 'progressbar2' instead."
@@ -35,7 +36,7 @@ def evaluate_coco(generator, model, threshold=0.05):
     # start collecting results
     results = []
     image_ids = []
-    for index in progressbar.progressbar(range(generator.size()), prefix='COCO evaluation: '):
+    for index in progressbar.progressbar(random.sample(range(generator.size()), k=500), prefix='COCO evaluation: '):
         image = generator.load_image(index)
         image = generator.preprocess_image(image)
         image, scale = generator.resize_image(image)

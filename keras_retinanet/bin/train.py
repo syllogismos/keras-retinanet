@@ -175,7 +175,7 @@ class log_image_callback(Callback):
         start = time.time()
         boxes, scores, labels = inference_model.predict_on_batch(np.expand_dims(image, axis=0))
         print("processing time: ", time.time() - start)
-
+        annotations = []
         for box, score, label in zip(boxes[0], scores[0], labels[0]):
             # scores are sorted so we can break
             if score < 0.5:
@@ -188,8 +188,11 @@ class log_image_callback(Callback):
             
             caption = "{} {:.3f}".format(labels_to_names[label], score)
             draw_caption(draw, b, caption)
-
-        wandb.log({image_name: [wandb.Image(draw, caption="annotations")]}, commit=False)
+            annotations.append(caption)
+        annotation_str = ', '.join(annotations)
+        if len(annotation_str) == 0:
+            annotation_str = "Still Learning!"
+        wandb.log({image_name: [wandb.Image(draw, caption=annotation_str)]}, commit=False)
 
 
 def create_callbacks(model, training_model, prediction_model, validation_generator, args):
